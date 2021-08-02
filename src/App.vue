@@ -1,11 +1,11 @@
 <template>
   <div id="app">
-    <component :is="currentComponent" @switchScreen="changeScreen"></component>
-    <!-- <div class="d-flex justify-content-center">
-      <button class="btn btn-primary mt-4" @click="switchScreen">
-        {{ buttonText }}
-      </button>
-    </div> -->
+    <keep-alive>
+      <component
+        :is="currentComponent"
+        @switchScreen="changeScreen"
+      ></component>
+    </keep-alive>
   </div>
 </template>
 
@@ -17,14 +17,14 @@ export default {
   name: "App",
   data() {
     return {
-      currentComponent: "Home"
+      currentComponent: "Home",
     };
   },
 
   methods: {
     changeScreen(screen) {
       this.currentComponent = screen;
-    }
+    },
   },
 
   components: {

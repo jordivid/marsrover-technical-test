@@ -107,7 +107,6 @@
 </template>
 
 <script>
-import { Params } from "@/models/params"
 
 export default {
   name: "Home",
@@ -129,7 +128,7 @@ export default {
 
   methods: {
     runTest() {
-      let params = null;
+      let params = {};
       this.errorDim = false;
       this.errorX = false;
       this.errorY = false;
@@ -153,7 +152,12 @@ export default {
         return;
       }
 
-      params = new Params([this.gridHeight, this.gridWidth, this.xPos, this.yPos, this.orientation, this.commands]);
+      params.gridHeight = this.gridHeight;
+      params.gridWidth = this.gridWidth;
+      params.xPos = this.xPos;
+      params.yPos = this.yPos;
+      params.orientation = this.orientation;
+      params.commands = this.commands;
       sessionStorage.setItem("JVC-provatecnica-params", JSON.stringify(params));
 
       this.$emit("switchScreen", "Mars");

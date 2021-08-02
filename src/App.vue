@@ -1,19 +1,37 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <component :is="currentComponent" @switchScreen="changeScreen"></component>
+    <!-- <div class="d-flex justify-content-center">
+      <button class="btn btn-primary mt-4" @click="switchScreen">
+        {{ buttonText }}
+      </button>
+    </div> -->
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Home from "./components/Home.vue";
+import Mars from "./components/Mars.vue";
 
 export default {
-  name: 'App',
+  name: "App",
+  data() {
+    return {
+      currentComponent: "Home"
+    };
+  },
+
+  methods: {
+    changeScreen(screen) {
+      this.currentComponent = screen;
+    }
+  },
+
   components: {
-    HelloWorld
-  }
-}
+    Home,
+    Mars,
+  },
+};
 </script>
 
 <style>
@@ -21,8 +39,5 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
 }
 </style>

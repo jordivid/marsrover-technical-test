@@ -1,7 +1,21 @@
 <template>
-  <div>
+  <div class="mt-3">
     <h1 class="text-center">MARS</h1>
-
+    <div class="text-center mb-2" v-if="commandProcess != null">
+      Command list:
+      <span class="bg-info">{{
+        orders.substring(0, commandIndex)
+      }}</span
+      ><span>{{ orders.substring(commandIndex) }}</span>
+    </div>
+    <div class="text-center mb-2" v-else>
+      Command list:
+      <span class="bg-info">{{ orders }}</span>
+    </div>
+    <div class="text-center mb-2">
+      Orientation: {{ rover.orientation }} Position: {{ rover.xPos }}, {{ rover.yPos }}
+      <span class="bg-danger" v-if="grid.isPositionInside(rover.xPos, rover.yPos) === false">Out of limits</span>
+    </div>
     <div class="container-fluid d-flex flex-column align-items-center">
       <div class="row" v-for="(tileRow, index) of tileRows" :key="index">
         <div
@@ -17,7 +31,13 @@
         Stop test
       </button>
     </div>
+
+    <div v-if="result !== ''">
+      {{ result }}
+    </div>
+
   </div>
+  
 </template>
 
 <script>
@@ -29,6 +49,7 @@ export default {
 
   data() {
     return {
+      orders: "",
       commands: [],
       commandIndex: 0,
       commandProcess: null,
@@ -36,6 +57,7 @@ export default {
       grid: null,
       squares: [],
       tileRows: [],
+      result: ""
     };
   },
 
@@ -81,7 +103,10 @@ export default {
       this.tileRows = this.tileRows.reverse();
 
       if (this.commandIndex === this.commands.length - 1) {
+        // No more commands
         clearInterval(this.commandProcess);
+        this.commandProcess = null;
+        this.result = `${!this.grid.wentOut}, ${this.rover.orientation}, (${this.rover.xPos}, ${this.rover.yPos})`;
       } else {
         this.commandIndex++;
       }
@@ -101,6 +126,7 @@ export default {
 
     this.grid = new Grid(params.gridHeight, params.gridWidth);
     this.rover = new Rover(params.xPos, params.yPos, params.orientation);
+    this.orders = params.commands;
     this.commands = Array.from(params.commands);
     this.commandIndex = 0;
 

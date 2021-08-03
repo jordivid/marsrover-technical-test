@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-5">
+  <div class="container mt-3">
     <h1 class="text-center">TEST PARAMS</h1>
     <div class="d-flex flex-column">
       <h2 class="text-center">Grid size</h2>
@@ -99,7 +99,7 @@
       </div>
     </div>
     <div class="d-flex justify-content-center">
-      <button class="btn btn-primary mt-4" @click="runTest">
+      <button class="btn btn-primary mt-4 mb-3" @click="runTest">
         Run test
       </button>
     </div>

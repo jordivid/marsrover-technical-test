@@ -2,16 +2,18 @@
   <div>
     <h1 class="text-center">MARS</h1>
 
-    <div class="container-fluid d-flex justify-content-center">
-      <div class="tile"></div>
-      <div class="tile north"></div>
-      <div class="tile east"></div>
-      <div class="tile south"></div>
-      <div class="tile west"></div>
+    <div class="container-fluid d-flex flex-column align-items-center">
+      <div class="row" v-for="(tileRow, index) of tileRows" :key="index">
+        <div
+          :class="tile"
+          v-for="(tile, indx) of tileRow"
+          :key="indx + 1000"
+        ></div>
+      </div>
     </div>
 
     <div class="d-flex justify-content-center">
-      <button class="btn btn-primary mt-4" @click="goHome">
+      <button class="btn btn-primary mt-4 mb-3" @click="goHome">
         Stop test
       </button>
     </div>
@@ -28,9 +30,12 @@ export default {
   data() {
     return {
       commands: [],
+      commandIndex: 0,
+      commandProcess: null,
       rover: null,
       grid: null,
       squares: [],
+      tileRows: [],
     };
   },
 
@@ -38,11 +43,58 @@ export default {
     goHome() {
       this.$emit("switchScreen", "Home");
     },
+
+    processCommands() {
+      let roverInsideGrid = true;
+
+      if (this.commands[this.commandIndex] === "A") {
+        if (this.grid.isPositionInside(this.rover.xPos, this.rover.yPos)) {
+          this.squares[this.rover.xPos][this.rover.yPos] = "tile";
+        }
+      }
+
+      this.rover.processCommand(this.commands[this.commandIndex]);
+      roverInsideGrid = this.grid.isInside(this.rover);
+      if (roverInsideGrid) {
+        switch (this.rover.orientation) {
+          case "N":
+            this.squares[this.rover.xPos][this.rover.yPos] = "tile north";
+            break;
+          case "E":
+            this.squares[this.rover.xPos][this.rover.yPos] = "tile east";
+            break;
+          case "S":
+            this.squares[this.rover.xPos][this.rover.yPos] = "tile south";
+            break;
+          case "W":
+            this.squares[this.rover.xPos][this.rover.yPos] = "tile west";
+            break;
+        }
+      }
+
+      /* 
+      As a js starts with element 0 and ends with element n, but the test requires
+      row n at the top and row 0 at the bottom, the array needs to be inverted in order
+      for Vue to render it properly. 
+      */
+      this.tileRows = this.squares.slice();
+      this.tileRows = this.tileRows.reverse();
+
+      if (this.commandIndex === this.commands.length - 1) {
+        clearInterval(this.commandProcess);
+      } else {
+        this.commandIndex++;
+      }
+    },
   },
 
   emits: ["switchScreen"],
 
   created() {
+    /*
+      During the creation of the component rover and grid objects are also created.
+      An array is setup to determine how the tiles that will be drawn onscreen.
+    */
     const params = JSON.parse(
       sessionStorage.getItem("JVC-provatecnica-params")
     );
@@ -50,31 +102,50 @@ export default {
     this.grid = new Grid(params.gridHeight, params.gridWidth);
     this.rover = new Rover(params.xPos, params.yPos, params.orientation);
     this.commands = Array.from(params.commands);
+    this.commandIndex = 0;
 
-    for(let i = 0; i < params.gridHeight; i++) {
+    for (let x = 0; x < params.gridHeight; x++) {
       let fila = [];
-      for(let j = 0; j < params.gridWidth; j++) {
-        fila.push(0);
+      for (let y = 0; y < params.gridWidth; y++) {
+        if (x === params.xPos && y === params.yPos) {
+          switch (params.orientation) {
+            case "N":
+              fila.push("tile north");
+              break;
+            case "E":
+              fila.push("tile east");
+              break;
+            case "S":
+              fila.push("tile south");
+              break;
+            case "W":
+              fila.push("tile west");
+              break;
+          }
+        } else {
+          fila.push("tile");
+        }
       }
       this.squares.push(fila);
     }
-    
 
-    
+    /* 
+      As a js starts with element 0 and ends with element n, but the test requires
+      row n at the top and row 0 at the bottom, the array needs to be inverted in order
+      for Vue to render it properly. 
+    */
+    this.tileRows = this.squares.slice();
+    this.tileRows = this.tileRows.reverse();
   },
 
   mounted() {
-    for (let command of this.commands) {
-      this.rover.processCommand(command);
-      this.grid.isInside(this.rover);
-    }
+    this.commandProcess = setInterval(this.processCommands, 2000);
   },
 };
 </script>
 
 <style scoped>
-
-.bordered{
+.bordered {
   box-sizing: border-box;
   border: 1px solid black;
 }
@@ -83,7 +154,8 @@ export default {
   box-sizing: border-box;
   width: 20px;
   height: 20px;
-  background-color: lightgray;
+  background-color: rgb(185, 80, 80);
+  border: 1px solid black;
 }
 
 .north,
@@ -92,8 +164,7 @@ export default {
 .west {
   background-repeat: no-repeat;
   background-attachment: none;
-  background-position: fixed;
-  background-size: cover;
+  background-position: center;
 }
 
 .north {

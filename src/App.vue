@@ -1,11 +1,6 @@
 <template>
   <div id="app">
-    <keep-alive>
-      <component
-        :is="currentComponent"
-        @switchScreen="changeScreen"
-      ></component>
-    </keep-alive>
+    <component :is="currentComponent" @switchScreen="changeScreen"></component>
   </div>
 </template>
 

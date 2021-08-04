@@ -28,8 +28,8 @@
           />
         </div>
       </div>
-      <div class="text-center invalid-feedback d-block" v-if="errorDim">
-        Minimum grid dimensions are 2X2
+      <div class="text-center invalid-feedback d-block" v-if="errorDim !== ''">
+        {{ errorDim }}
       </div>
     </div>
     <div class="d-flex flex-column mt-3">
@@ -59,7 +59,12 @@
         </div>
         <div class="form-group">
           <label for="orientation">Orientation</label>
-          <select name="orientation" id="orientation" class="form-control" v-model="orientation">
+          <select
+            name="orientation"
+            id="orientation"
+            class="form-control"
+            v-model="orientation"
+          >
             <option value="N">North</option>
             <option value="E">East</option>
             <option value="S">South</option>
@@ -107,7 +112,6 @@
 </template>
 
 <script>
-
 export default {
   name: "Home",
 
@@ -119,17 +123,25 @@ export default {
       yPos: 0,
       orientation: "N",
       commands: "",
-      errorDim: false,
+      errorDim: "",
       errorX: false,
       errorY: false,
-      errorCommands: false
+      errorCommands: false,
     };
   },
 
   methods: {
     runTest() {
+      /*
+       Checks validity of params, if valid runs test.
+       - Grid is a minimum dimension of 2X2 tiles and a maximum depending on navigator's window dimensions
+       - Initial position must be inside the grid
+       - There must be at least one command
+      */
+      let maxWidth = Math.floor(window.innerWidth / 28);
+      let maxHeight = Math.floor(window.innerHeight / 28) - 2;
       let params = {};
-      this.errorDim = false;
+      this.errorDim = "";
       this.errorX = false;
       this.errorY = false;
       this.errorCommands = false;
@@ -138,7 +150,10 @@ export default {
         this.errorCommands = true;
       }
       if (!(this.gridHeight > 1 && this.gridWidth > 1)) {
-        this.errorDim = true;
+        this.errorDim = "Minimum grid dimensions are 2X2";
+        return;
+      } else if (this.gridWidth > maxWidth || this.gridHeight > maxHeight) {
+        this.errorDim = `Max grid dimensions are ${maxHeight}X${maxWidth}`;
         return;
       }
       if (this.xPos < 0 || this.xPos >= this.gridHeight) {
@@ -175,7 +190,7 @@ export default {
       if (this.commands.length > 0) {
         this.commands = this.commands.substring(0, this.commands.length - 1);
       }
-    }
+    },
   },
 
   emits: ["switchScreen"],

@@ -1,22 +1,37 @@
 <template>
   <div class="mt-3">
-    <h1 class="text-center">MARS</h1>
-    <div class="text-center mb-2" v-if="commandProcess != null">
-      Command list:
-      <span class="bg-info">{{
-        orders.substring(0, commandIndex)
-      }}</span
-      ><span>{{ orders.substring(commandIndex) }}</span>
+    <h1 class="text-center">ROVER ON MARS</h1>
+    <div v-if="!resultVisible">
+      <div class="text-center" v-if="commandProcess != null">
+        <span class="bold">Command list</span>:
+        <span class="bg-info">{{ orders.substring(0, commandIndex) }}</span
+        ><span>{{ orders.substring(commandIndex) }}</span>
+      </div>
+      <div class="text-center" v-else>
+        <span class="bold">Command list:</span>
+        <span class="bg-info">{{ orders }}</span>
+      </div>
+      <div class="text-center">
+        <span class="bold">Orientation</span>: {{ rover.orientation }}<br>
+        <span class="bold">Position</span>: {{ rover.xPos }},
+        {{ rover.yPos }}
+        <span
+          class="bg-danger"
+          v-if="grid.isPositionInside(rover.xPos, rover.yPos) === false"
+          >Out of limits</span
+        >
+      </div>
     </div>
-    <div class="text-center mb-2" v-else>
-      Command list:
-      <span class="bg-info">{{ orders }}</span>
+    <div class="text-center d-flex flex-column" v-else>
+      <div><span class="bold">Execute commands</span>: {{ !grid.wentOut }}</div>
+      <div>
+        <span class="bold">Final orientation</span>: {{ rover.orientation }}<br>
+        <span class="bold">Final position</span>: {{ rover.xPos }},
+        {{ rover.yPos }}
+      </div>
     </div>
-    <div class="text-center mb-2">
-      Orientation: {{ rover.orientation }} Position: {{ rover.xPos }}, {{ rover.yPos }}
-      <span class="bg-danger" v-if="grid.isPositionInside(rover.xPos, rover.yPos) === false">Out of limits</span>
-    </div>
-    <div class="container-fluid d-flex flex-column align-items-center">
+
+    <div class="container-fluid d-flex flex-column align-items-center mt-2">
       <div class="row" v-for="(tileRow, index) of tileRows" :key="index">
         <div
           :class="tile"
@@ -28,16 +43,14 @@
 
     <div class="d-flex justify-content-center">
       <button class="btn btn-primary mt-4 mb-3" @click="goHome">
-        Stop test
+        {{ buttonText }}
       </button>
     </div>
 
     <div v-if="result !== ''">
       {{ result }}
     </div>
-
   </div>
-  
 </template>
 
 <script>
@@ -57,7 +70,8 @@ export default {
       grid: null,
       squares: [],
       tileRows: [],
-      result: ""
+      resultVisible: false,
+      buttonText: "Stop test"
     };
   },
 
@@ -67,14 +81,15 @@ export default {
     },
 
     processCommands() {
+      // Commands processing. The function is run asynchronously.
       let roverInsideGrid = true;
 
+      // Update square onscreen
       if (this.commands[this.commandIndex] === "A") {
         if (this.grid.isPositionInside(this.rover.xPos, this.rover.yPos)) {
           this.squares[this.rover.xPos][this.rover.yPos] = "tile";
         }
       }
-
       this.rover.processCommand(this.commands[this.commandIndex]);
       roverInsideGrid = this.grid.isInside(this.rover);
       if (roverInsideGrid) {
@@ -106,7 +121,8 @@ export default {
         // No more commands
         clearInterval(this.commandProcess);
         this.commandProcess = null;
-        this.result = `${!this.grid.wentOut}, ${this.rover.orientation}, (${this.rover.xPos}, ${this.rover.yPos})`;
+        this.resultVisible = true;
+        this.buttonText = "Back";
       } else {
         this.commandIndex++;
       }
@@ -204,5 +220,9 @@ export default {
 }
 .west {
   background-image: url("./../assets/west.png");
+}
+
+.bold {
+  font-weight: bold;
 }
 </style>

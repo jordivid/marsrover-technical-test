@@ -18,6 +18,7 @@ export class Rover {
   }
 
   set orientation(side) {
+    // Changes rovers orientation
     switch (side) {
       case "L":
         switch (this._orientation) {
@@ -55,6 +56,7 @@ export class Rover {
   }
 
   move() {
+    // Moves the rover
     switch (this._orientation) {
       case "N":
         this._xPos += 1;
@@ -73,11 +75,14 @@ export class Rover {
 
   processCommand(command) {
     // Process any valid command
+
+    // Orientation change
     if (command === "L" || command === "R") {
       this.orientation = command;
       return;
     }
 
+    // Movement
     if (command === "A") {
         this.move();
     }

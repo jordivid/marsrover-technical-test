@@ -28,9 +28,11 @@ export class Grid {
   }
 
   isInside(rover) {
-    // rover - object of type Rover
-    // It is validated if the rover is inside the square.
-    // If at any moment it is outside it will be recorded
+    /*
+     rover - object of type Rover
+     It is validated if the rover is inside the square.
+     If at any moment it is outside it will be recorded
+     */
     const xCoord = rover.xPos;
     const yCoord = rover.yPos;
     let insideGrid = true;
@@ -53,6 +55,7 @@ export class Grid {
   }
 
   isPositionInside(x, y) {
+    // Checks if given coordinates are inside the square
     let insideGrid = true;
 
     if (x < 0 || x > this._height - 1) {
@@ -64,5 +67,4 @@ export class Grid {
 
     return insideGrid;
   }
-
 }
